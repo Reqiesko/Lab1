@@ -2,14 +2,7 @@
 #include "tests.h"
 #include "filework.h"
 
-extern string pathF;
-extern string adresF;
-extern int val;
-string adres;
-string pathc;
-int way = 0;
 
-int valadres;
 
 struct Point3D {
 	double x0, y0, z0, x, y, z, r, radlenth, dotlenth;
@@ -35,12 +28,10 @@ enum saveinfile {
 	yes = 1,
 	no = 2
 };
-enum clearfile {
-	rewrite = 1,
-	add = 2,
-	newfile
-};
 
+
+const int ignor = ignor;
+const int c_point = 7;
 void greeting() {
 	cout << "Эта программа определяет принадлежность точки сфере." << endl;
 	cout << endl;
@@ -68,7 +59,7 @@ void menu() {
 		if (!error_check()) {
 			continue;
 		}
-		cin.ignore(32767, '\n');
+		cin.ignore(ignor, '\n');
 		switch (variant) {
 			case perform: {
 			sub_menu();
@@ -111,7 +102,7 @@ void sub_menu() {
 		if (!error_check()) {			
 			continue;
 		}
-		cin.ignore(32767, '\n');
+		cin.ignore(ignor, '\n');
 		switch (var) {
 			case console: {
 				console_way();
@@ -147,7 +138,7 @@ bool error_check() {
 	if (cin.fail())
 	{
 		cin.clear();
-		cin.ignore(32767, '\n');
+		cin.ignore(ignor, '\n');
 		cout << "Пожалуйста введите цифру 1, 2 или 3." << endl;
 		return 0;
 	}
@@ -164,10 +155,9 @@ bool file_exist(string path) {
 }
 
 int console_way() {
-	way = 0;
+	string pathc, adres;
 	ifstream foutcheck;
-	ofstream foutcon;
-	ofstream foutsource;
+	
 	cout << "Введите координаты (x, y, z) центра сферы " << endl;
 	cout << "X = ";
 	pt.x0 = number_check();
@@ -186,40 +176,41 @@ int console_way() {
 	cin >> pn.n;
 	double** arr_source = new double* [pn.n];
 	for (int i = 0; i < pn.n; i++) {
-		arr_source[i] = new double[7];
+		arr_source[i] = new double[c_point];
 	}
 	int* arr_res = new int[pn.n];
-	
+
 	int i;
 	for (i = 0; i < pn.n; i++) {
-		
-			arr_source[i][0] = pt.x0;
-			arr_source[i][1] = pt.y0;
-			arr_source[i][2] = pt.z0;
-			arr_source[i][3] = pt.radlenth;
-			cout << "Введите координаты " << i + 1 << "-ой точки." << endl;
-			cout << "X = ";
-			pt.x = number_check();
-			cout << "Y = ";
-			pt.y = number_check();
-			cout << "Z = ";
-			pt.z = number_check();
-			arr_source[i][4] = pt.x;
-			arr_source[i][5] = pt.y;
-			arr_source[i][6] = pt.z;
-			arr_res[i] = result(pt.x0, pt.y0, pt.z0, pt.x, pt.y, pt.z, pt.radlenth);
-		
+
+		arr_source[i][0] = pt.x0;
+		arr_source[i][1] = pt.y0;
+		arr_source[i][2] = pt.z0;
+		arr_source[i][3] = pt.radlenth;
+		cout << "Введите координаты " << i + 1 << "-ой точки." << endl;
+		cout << "X = ";
+		pt.x = number_check();
+		cout << "Y = ";
+		pt.y = number_check();
+		cout << "Z = ";
+		pt.z = number_check();
+		arr_source[i][4] = pt.x;
+		arr_source[i][5] = pt.y;
+		arr_source[i][6] = pt.z;
+		arr_res[i] = result(pt.x0, pt.y0, pt.z0, pt.x, pt.y, pt.z, pt.radlenth);
+
 	}
+	cout << "Исходные данные: " << endl;
 	for (i = 0; i < pn.n; i++) {
-		for (int j = 0; j < 7; j++) {
+		for (int j = 0; j < c_point; j++) {
 			cout << arr_source[i][j] << " ";
 		}
 		cout << endl;
 	}
 	cout << "Выберите вариант:" << endl;
 	cout << "Сохранить исходные данные в файл? " << endl;
-	result_from_console();
-	if (way == 1) {
+
+	if (result_from_console() == 1) {
 		cout << "Введите путь к файлу для сохранения исходных данных. " << endl;
 		cin >> adres;
 		foutcheck.open(adres, ios::in);
@@ -238,61 +229,33 @@ int console_way() {
 		}
 		if (file_exist(adres) == false) {
 			foutcheck.close();
-			foutcon.open(adres);
+			save_source(arr_source, adres, rewrite);
 		}
 		else {
 			foutcheck.close();
 			if (file_check_size(adres) == true) {
-				foutsource.open(adres);
+				save_source(arr_source, adres, rewrite);
 			}
 			else {
-				wtdw_file();
-				if (valadres == 1) {
-					foutsource.open(adres, ios::out);
-				}
-				else if (valadres == 2) {
-					foutsource.open(adres, ios::app);
-				}
-				else {
-					foutsource.open(adres);
-				}
+				save_source(arr_source, adres, wtdw_file(adres));
 			}
 		}
-		for (i = 0; i < pn.n; i++) {
-			if (i + 1 % 10 == 3 && i + 1 % 100 != 13) {
-				for (int j = 0; j < 7; j++) {
-					foutsource << arr_source[i][j] << " ";
-				}
-				foutsource << "\n";
-			}
-			else {
-				for (int j = 0; j < 7; j++) {
-					foutsource << arr_source[i][j] << " ";
-				}
-				foutsource << "\n";
-			}
-		}
-		cout << "Исходные данные успешно сохранены! " << endl;
-		way = 0;
 	}
 	for (i = 0; i < pn.n; i++) {		
-		if (i + 1 % 10 == 3 && i + 1 % 100 != 13) {
-			cout << '\n' << i + 1 << "-яя ";
-		}
-		else {
-			cout << '\n' << i + 1 << "-ая ";
-		}
 		if (arr_res[i] == 1) {
-			cout << "точка принадлежит сфере." << endl;
+			cout << i + 1 << " точка принадлежит сфере." << endl;
 		}
 		else if (arr_res[i] == 0) {
-			cout << "точка не принадлежит сфере." << endl;
+			cout << i + 1 << " точка не принадлежит сфере." << endl;
 		}
 	}
 	cout << "Выберите вариант:" << endl;
 	cout << "Сохранить результат в файл? " << endl;
-	result_from_console();
-	if (way == 1) {
+	/// 
+	/// 
+	/// 
+	/// 
+	if (result_from_console() == 1) {
 		cout << "Введите путь к файлу для сохранения результата. " << endl;
 		cin >> pathc;
 		while (adres == pathc) {
@@ -304,6 +267,10 @@ int console_way() {
 			foutcheck.close();
 			cout << "Введите путь к файлу: " << endl;
 			cin >> pathc;
+			while (adres == pathc) {
+				cout << "Адреса файлов совпадают. Введите путь к файлу: " << endl;
+				cin >> pathc;
+			}
 			foutcheck.open(pathc);
 		}
 		while (file_name_check(pathc)) {
@@ -311,50 +278,26 @@ int console_way() {
 			cout << "Ошибка! Некорректное путь или имя файла." << endl;
 			cout << "Введите путь к файлу: " << endl;
 			cin >> pathc;
+			while (adres == pathc) {
+				cout << "Адреса файлов совпадают. Введите путь к файлу: " << endl;
+				cin >> pathc;
+			}
 			foutcheck.open(pathc, ios::in);
 		}
 		if (file_exist(pathc) == false) {
 			foutcheck.close();
-			foutcon.open(pathc);
+			save_results(arr_res, pathc, rewrite);
 		}
 		else {				
 			foutcheck.close();
 			if (file_check_size(pathc) == true) {
-				foutcon.open(pathc);
+				save_results(arr_res, pathc, rewrite);
 			}
-			else {
-				wtdw_file();
-				if (valadres == 1) {
-					foutcon.open(pathc, ios::out);
-				}
-				else if (valadres == 2) {
-					foutcon.open(pathc, ios::app);
-				}
-				else {
-					foutcon.open(pathc);
-				}
+			else {	
+				save_results(arr_res, pathc, wtdw_file(pathc));
 			}
-		}
-		for (i = 0; i < pn.n; i++) {			
-			if (i + 1 % 10 == 3 && i + 1 % 100 != 13) {
-				foutcon << '\n' << i + 1 << "-яя ";
-			}
-			else {
-				foutcon << '\n' << i + 1 << "-ая ";
-			}
-			if (arr_res[i] == 1) {
-				foutcon << "точка принадлежит сфере." << endl;
-			}
-			else if (arr_res[i] == 0) {
-				foutcon << "точка не принадлежит сфере." << endl;
-			}
-		}
-		way = 0;
-		system("cls");
-		cout << "Результат успешно сохранен! " << endl;
+		}	
 	}	
-	foutsource.close();
-	foutcon.close();
 	for (i = 0; i < pn.n; i++) {
 		delete[] arr_source[i];
 	}
@@ -364,8 +307,49 @@ int console_way() {
 	return 1;
 }
 
+void save_source(double** arr, string pathfile, int modout) {
+	ofstream foutsource;
+	if (modout == 1) {
+		foutsource.open(pathfile, ios::out);
+		foutsource << " " << endl;
+	}
+	if (modout == 2) {
+		foutsource.open(pathfile, ios::app);
+		foutsource << " " << endl;
+	}
+	
+	for (int i = 0; i < pn.n; i++) {
+		for (int j = 0; j < c_point; j++) {
+			foutsource << arr[i][j] << " ";
+		}
+		foutsource << "\n";
+	}
+	foutsource.close();
+	cout << "Исходные данные успешно сохранены! " << endl;
+}
 
-
+void save_results(int* arr, string pathfile, int modout) {
+	ofstream foutcon;
+	if (modout == 1) {
+		foutcon.open(pathfile, ios::out);
+		foutcon << " " << endl;
+	}
+	if (modout == 2) {
+		foutcon.open(pathfile, ios::app);
+		foutcon << " " << endl;
+	}
+	for (int i = 0; i < pn.n; i++) {			
+		if (arr[i] == 1) {
+			foutcon << i + 1 << " точка принадлежит сфере." << endl;
+		}
+		else if (arr[i] == 0) {
+			foutcon << i + 1 << " точка не принадлежит сфере." << endl;
+		}
+	}
+	foutcon.close();
+	system("cls");
+	cout << "Результат успешно сохранен! " << endl;
+}
 
 double calc() {			
 
@@ -376,9 +360,10 @@ double calc() {
 
 
 
-void result_from_console() {
+int result_from_console() {
 	saveinfile floor = yes;
 	int var = floor;
+	int way = 0;
 	bool sw = true;
 	while (sw) {
 		cout << "1. Да " << endl;
@@ -387,7 +372,7 @@ void result_from_console() {
 		if (!error_check()) {
 			continue;
 		}
-		cin.ignore(32767, '\n');
+		cin.ignore(ignor, '\n');
 		switch (var) {
 			case yes: {
 				way = 1;
@@ -403,6 +388,7 @@ void result_from_console() {
 			}	
 		}	
 	}
+	return way;
 }
 
 bool file_check_size(string pFile) {
@@ -419,72 +405,74 @@ bool file_check_size(string pFile) {
 	}
 }
 
-int wtdw_file() {
+int wtdw_file(string& pFile) {
 	bool d = true;
 	ifstream foutcheck;
-	clearfile floor = rewrite;
-	int del = floor;
-	string pfile;
+	int del;
+
 	while (d) {
-		cout << "Файл с таким именем уже существует! Выберите вариант." << endl;
+		cout << "Файл не пуст! Выберите вариант." << endl;
 		cout << "1. Перезаписать." << endl;
 		cout << "2. Дописать в конец." << endl;
 		cout << "3. Указать другой файл." << endl;
 		cin >> del;
+
 		if (!error_check()) {
 			continue;
 		}
-		cin.ignore(32767, '\n');
+
+		cin.ignore(ignor, '\n');
+
 		switch (del) {
-			case rewrite: {	
-				valadres = 1;
-				d = false;
-				break;
-			}
-			case add: {
-				valadres = 2;						
-				d = false;
-				break;
-			}
-			case newfile: {	
+		case rewrite: {
+			return rewrite;
+		}
+		case add: {
+			return add;
+		}
+		case newfile: {
+			bool trg = true;
+			while (trg) {
+				string adresF;
 				cout << "Введите путь к файлу. " << endl;
-				cin >> pfile;
-				pathc = pfile;
-				pathF = pfile;
-				foutcheck.open(pfile, ios::in);
-				while (!check_read_only(pfile)) {
+				cin >> pFile;
+
+				foutcheck.open(pFile, ios::in);
+
+				while (file_name_check(pFile)) {
+					foutcheck.close();
+					cout << "Ошибка! Некорректный путь или имя файла." << endl;
+					cout << "Введите путь к файлу: " << endl;
+					cin >> pFile;
+					foutcheck.open(pFile, ios::in);
+				}
+				while (!check_read_only(pFile)) {
 					foutcheck.close();
 					cout << "Введите путь к файлу: " << endl;
-					cin >> pfile;
-					pathc = pfile;
-					foutcheck.open(pfile, ios::in);
+					cin >> pFile;
+					foutcheck.open(pFile);
 				}
-				while (file_name_check(pfile)) {
-				foutcheck.close();
-				cout << "Ошибка! Некорректный путь или имя файла." << endl;
-				cout << "Введите путь к файлу: " << endl;
-				cin >> pfile;
-				pathc = pfile;
-				pathF = pfile;
-				foutcheck.open(pfile, ios::in);
+				if (!foutcheck.is_open()) {
+					ifstream newfile(pFile);
+					newfile.close();
+					return rewrite;
 				}
-				
-				if (adresF == pathF) {
+				else {
+					bool check = file_check_size(pFile);
 					foutcheck.close();
-					same_path();
+					if (check) {
+						return 0;
+					}
+					else {
+						return wtdw_file(pFile);
+					}
 				}
-				if (file_exist(pfile) == true) {
-					foutcheck.close();
-					wtdw_file();
-				}
-				foutcheck.close();				
-				d = false;		
-				break;
-			}
-			default: {
-				cout << "Пожалуйста введите цифру 1, 2 или 3.  " << endl;
 			}
 		}
+		default: {
+			cout << "Пожалуйста введите цифру 1, 2 или 3.  " << endl;
+		}
+		}
 	}
-	return valadres;
 }
+
