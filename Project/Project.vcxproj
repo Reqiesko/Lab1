@@ -144,11 +144,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="filework.cpp" />
     <ClCompile Include="tests.cpp" />
+    <ClCompile Include="ui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functions.h" />
     <ClInclude Include="filework.h" />
     <ClInclude Include="tests.h" />
+    <ClInclude Include="ui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

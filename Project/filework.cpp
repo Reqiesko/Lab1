@@ -1,14 +1,16 @@
 #include "filework.h"
 #include "tests.h"
 #include "functions.h"
+#include "ui.h"
 #include <iostream>
 
 using namespace std;
 
-struct filevariable {
-  double x0, y0, z0, x, y, z, r, radlenth, dotlenth;
+struct file_var {
+  double x0, y0, z0, x, y, z, radlenth;
 };
-filevariable fl;
+
+file_var fl;
 const int rem_1 = 3;
 const int rem_2 = 13;
 const int ten = 10;
@@ -25,12 +27,12 @@ void file_work() {
   fin.open(adresF);
   while (file_name_check(adresF)) {
     fin.close();
-    cout << "Ошибка! Введен неккоректный путь к файлу! \nВведите путь к файлу: " << endl;
+    cout << "Ошибка! Введен некорректный путь к файлу! \nВведите путь к файлу: " << endl;
     cin >> adresF;
     fin.open(adresF);
   }
   if (!fin.is_open()) {
-    cout << "Ошибка! Не удаётся открыть файл для вывода!" << endl;
+    cout << "Ошибка! Не удаётся открыть файл!" << endl;
     cin.clear();
     cin.ignore(ignor, '\n');
     menu();
@@ -171,6 +173,7 @@ bool file_name_check(string filename) {
   file.close();
   return false;
 }
+
 void file_print_result(string adresFile, string pathFile, int modout) {
   ifstream fin;
   ofstream fout;
@@ -193,8 +196,9 @@ void file_print_result(string adresFile, string pathFile, int modout) {
     else {
       fout << i << "-ая ";
     }
-    calc();
-    if (fl.r == pow(fl.dotlenth, 2) || fl.dotlenth < fl.radlenth) {
+    double dotlenth = calc();
+    double r = pow(dotlenth, 2);
+    if (r == pow(dotlenth, 2) || dotlenth < fl.radlenth) {
       fout << "точка принадлежит сфере." << endl;
     }
     else {
